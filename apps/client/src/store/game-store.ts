@@ -8,6 +8,7 @@ interface GameState {
   crashPoint: number | null;
   serverSeed: string | null;
   roundStartedAt: number | null;
+  roundEndedAt: number | null;
   bots: BotPlayer[];
   roundHistory: RoundResult[];
   connected: boolean;
@@ -17,7 +18,7 @@ interface GameState {
 interface GameActions {
   setPhase: (phase: GamePhase) => void;
   setMultiplier: (multiplier: number) => void;
-  setCrashPoint: (crashPoint: number, serverSeed: string) => void;
+  setCrashPoint: (roundEndedAt: number, crashPoint: number, serverSeed: string) => void;
   setBots: (bots: BotPlayer[]) => void;
   updateBotCashout: (botId: string, at: number) => void;
   addRoundToHistory: (round: RoundResult) => void;
@@ -37,6 +38,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
   crashPoint: null,
   serverSeed: null,
   roundStartedAt: null,
+  roundEndedAt: null,
   bots: [],
   roundHistory: [],
   connected: false,
@@ -47,7 +49,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
 
   setMultiplier: (multiplier) => set({ multiplier }),
 
-  setCrashPoint: (crashPoint, serverSeed) => set({ crashPoint, serverSeed }),
+  setCrashPoint: (roundEndedAt, crashPoint, serverSeed) => set({ roundEndedAt, crashPoint, serverSeed }),
 
   setBots: (bots) => set({ bots }),
 
@@ -67,6 +69,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
     set({
       roundId,
       roundStartedAt: startedAt,
+      roundEndedAt: null,
       multiplier: 1.0,
       crashPoint: null,
       serverSeed: null,
@@ -82,6 +85,7 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
       crashPoint: null,
       serverSeed: null,
       roundStartedAt: null,
+      roundEndedAt: null,
       bots: [],
     }),
 }));

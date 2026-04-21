@@ -31,6 +31,7 @@ export const roundCrashSchema = z.object({
   crashPoint: z.number(),
   serverSeed: z.string(),
   hash: z.string(),
+  endedAt: z.number()
 });
 
 const botPlayerSchema = z.object({

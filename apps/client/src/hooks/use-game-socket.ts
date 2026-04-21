@@ -48,7 +48,7 @@ export function useGameSocket() {
 
         case 'round:crash': {
           game.setPhase(GamePhase.CRASHED);
-          game.setCrashPoint(msg.crashPoint, msg.serverSeed);
+          game.setCrashPoint(msg.endedAt, msg.crashPoint, msg.serverSeed);
           const roundId = useGameStore.getState().roundId;
           if (roundId) {
             game.addRoundToHistory({

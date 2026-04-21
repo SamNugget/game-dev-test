@@ -66,20 +66,21 @@ export class GameRoom {
       this.processAutoCashouts(multiplier);
     });
 
-    this.engine.on('crash', ({ crashPoint, serverSeed, hash, roundId }: {
+    this.engine.on('crash', ({ crashPoint, serverSeed, hash, roundId, endedAt }: {
       crashPoint: number;
       serverSeed: string;
       hash: string;
       roundId: string;
+      endedAt: number;
     }) => {
-      this.broadcast({ type: 'round:crash', crashPoint, serverSeed, hash });
+      this.broadcast({ type: 'round:crash', crashPoint, serverSeed, hash, endedAt });
 
       // Add to history
       const result: RoundResult = {
         roundId,
         crashPoint,
         hash,
-        timestamp: Date.now(),
+        timestamp: endedAt,
       };
       this.roundHistory.unshift(result);
       if (this.roundHistory.length > MAX_HISTORY) {

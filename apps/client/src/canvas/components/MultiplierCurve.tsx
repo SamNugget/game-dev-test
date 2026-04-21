@@ -23,7 +23,7 @@ export function MultiplierCurve({ width, height }: MultiplierCurveProps) {
     const g = graphicsRef.current;
     if (!g) return;
 
-    const { phase, multiplier, roundStartedAt, setRocketPosition } =
+    const { phase, multiplier, roundStartedAt, roundEndedAt, setRocketPosition } =
       useGameStore.getState();
 
     const isFlying = phase === GamePhase.FLYING;
@@ -35,7 +35,7 @@ export function MultiplierCurve({ width, height }: MultiplierCurveProps) {
     }
 
     const elapsedMs =
-      roundStartedAt != null ? Date.now() - roundStartedAt : 0;
+      roundStartedAt != null ? (roundEndedAt ?? Date.now()) - roundStartedAt : 0;
 
     const viewport = calculateViewport(multiplier, Math.max(elapsedMs, 1000), width, height);
 

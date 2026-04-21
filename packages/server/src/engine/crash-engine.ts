@@ -108,6 +108,7 @@ export class CrashEngine extends EventEmitter {
       hash: this.currentRound.hash,
       serverSeed: this.currentRound.hash,
       roundId: this.currentRound.roundId,
+      endedAt: Date.now()
     });
     this.timer = setTimeout(() => {
       if (this.running) this.startWaiting();
