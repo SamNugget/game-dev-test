@@ -9,12 +9,23 @@ export interface CanvasStateContext {
 export abstract class CanvasState {
   public readonly gameObjects: GameObjects;
   public readonly ticker: Ticker;
+  public inState = false;
 
   constructor({ gameObjects, ticker }: CanvasStateContext) {
     this.gameObjects = gameObjects;
     this.ticker = ticker;
   }
 
-  public abstract enter(): Promise<void>;
-  public abstract exit(): Promise<void>;
+  public enter(): void {
+    this.inState = true;
+    this._enter();
+  }
+
+  public exit(): void {
+    this.inState = false;
+    this._exit();
+  }
+
+  protected abstract _enter(): void;
+  protected abstract _exit(): void;
 }

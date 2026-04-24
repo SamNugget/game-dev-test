@@ -1,29 +1,55 @@
 import { Ticker } from "pixi.js";
 import { CanvasState } from "./CanvasState";
 import { useGameStore } from "../../store/game-store";
+import gsap from "gsap";
 
 export class FlyingState extends CanvasState {
-  public async enter(): Promise<void> {
+  protected xPositionEase = gsap.parseEase("power1.out");
+  protected yPositionEase = gsap.parseEase("power1.out");
+
+  protected _enter(): void {
+    const { batter } = this.gameObjects;
+    batter.gotoAndStop(7);
+
     this.ticker.add(this.update, this);
   }
 
-  public async exit(): Promise<void> {
+  protected _exit(): void {
     this.ticker.remove(this.update, this);
   }
 
   protected update(ticker: Ticker): void {
-    const { batter, ballContainer } = this.gameObjects;
+    const { ballContainer } = this.gameObjects;
+
     const currentAngle = ballContainer.angle;
+    const spinSpeed = 720;
 
-    batter.gotoAndStop(7);
-
-    const spinSpeed = 150;
     ballContainer.angle = currentAngle + (ticker.deltaMS / 1000) * spinSpeed;
 
-    const xSpeedScale = 200, ySpeedScale = -600;
+    this.updateStage();
+  }
+
+  protected updateStage(): void {
+    const { skyGradient, scene, ballContainer } = this.gameObjects;
 
     const { multiplier } = useGameStore.getState();
-    ballContainer.x = 250 + (multiplier - 1) * xSpeedScale;
-    ballContainer.y = 807 + (multiplier - 1) * ySpeedScale;
+
+    const upSpeed = 10000;
+    const position = (multiplier - 1) * upSpeed;
+
+    skyGradient.setAltitude(position);
+
+    scene.y = position;
+
+    const yRange = -500;
+    const xRange = 300;
+
+    ballContainer.x = 250 + xRange * this.getProgressFromMulti(multiplier, this.xPositionEase);
+    ballContainer.y = 807 + yRange * this.getProgressFromMulti(multiplier, this.yPositionEase);
+  }
+
+  protected getProgressFromMulti(multiplier: number, ease: gsap.EaseFunction): number {
+    const ballDriftEndsAt = 5;
+    return ease(Math.min(1, (multiplier - 1) / (ballDriftEndsAt - 1)));
   }
 }

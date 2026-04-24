@@ -1,27 +1,30 @@
 import { AnimatedSprite, Assets, Container, Graphics, Sprite } from "pixi.js";
+import { SkyGradient } from "./components/SkyGradient";
 
 export interface GameObjects {
+  skyGradient: SkyGradient;
+  scene: Container;
   batter: AnimatedSprite;
   ballContainer: Container;
 }
 
 export class GameFactory {
   public buildGame(root: Container): GameObjects {
-    root.addChild(
-      new Graphics({ zIndex: -1 })
-        .rect(0, 0, 1024, 1024)
-        .fill(0x3298cb)
-    );
+    const skyGradient = new SkyGradient();
+    root.addChild(skyGradient.sprite);
 
-    root.addChild(this.createStadium());
+    const scene = new Container({label: "scene"});
+    root.addChild(scene);
+
+    scene.addChild(this.createStadium());
+    
+    const batter = this.createBatter();
+    scene.addChild(batter);
 
     const ballContainer = this.createBallContainer();
     root.addChild(ballContainer);
 
-    const batter = this.createBatter();
-    root.addChild(batter);
-
-    return { batter, ballContainer };
+    return { scene, skyGradient, batter, ballContainer };
   }
 
   public createStadium(): Sprite {
