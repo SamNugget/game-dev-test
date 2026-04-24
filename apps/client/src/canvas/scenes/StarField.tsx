@@ -7,7 +7,7 @@ import { useGameStore } from '../../store/game-store.js';
 extend({ Graphics });
 
 interface Star {
-  x: number;
+  p: number;
   y: number;
   size: number;
   speed: number;
@@ -19,9 +19,9 @@ interface StarFieldProps {
   height: number;
 }
 
-function createStars(width: number, height: number, count = 150): Star[] {
+function createStars(height: number, count = 150): Star[] {
   return Array.from({ length: count }, () => ({
-    x: Math.random() * width,
+    p: Math.random(),
     y: Math.random() * height,
     size: Math.random() * 2 + 0.5,
     speed: Math.random() * 0.8 + 0.2,
@@ -31,7 +31,7 @@ function createStars(width: number, height: number, count = 150): Star[] {
 
 export function StarField({ width, height }: StarFieldProps) {
   const graphicsRef = useRef<Graphics | null>(null);
-  const starsRef = useRef<Star[]>(createStars(width, height));
+  const starsRef = useRef<Star[]>(createStars(height));
 
   const draw = useCallback(() => {
     const g = graphicsRef.current;
@@ -46,7 +46,7 @@ export function StarField({ width, height }: StarFieldProps) {
         star.y += star.speed;
         if (star.y > height) {
           star.y = 0;
-          star.x = Math.random() * width;
+          star.p = Math.random();
         }
       }
     }
@@ -55,7 +55,7 @@ export function StarField({ width, height }: StarFieldProps) {
 
     for (const star of starsRef.current) {
       g.setFillStyle({ color: 0xffffff, alpha: star.alpha });
-      g.circle(star.x, star.y, star.size);
+      g.circle(star.p * width, star.y, star.size);
       g.fill();
     }
   }, [width, height]);
