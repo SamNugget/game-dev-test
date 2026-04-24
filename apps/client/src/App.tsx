@@ -4,7 +4,6 @@ import { useGameSocket } from './hooks/use-game-socket.js';
 import { useGameLoop } from './hooks/use-game-loop.js';
 import { useGameStore } from './store/game-store.js';
 import { usePlayerStore } from './store/player-store.js';
-import { GameCanvas } from './canvas/GameCanvas.js';
 import { RocketRive } from './rive/RocketRive.js';
 import { MultiplierDisplay } from './components/hud/MultiplierDisplay.js';
 import { RoundCountdown } from './components/hud/RoundCountdown.js';
@@ -79,7 +78,7 @@ export function App() {
           ref={canvasContainerRef}
           className="flex-1 relative bg-gray-900/50 rounded-lg overflow-hidden"
         >
-          <GameCanvas width={canvasSize.width} height={canvasSize.height} />
+          {/* <GameCanvas width={canvasSize.width} height={canvasSize.height} /> */}
           <RocketRive />
           <MultiplierDisplay />
           <RoundCountdown />
