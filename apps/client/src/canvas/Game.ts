@@ -1,5 +1,13 @@
-import { AnimatedSprite, Application, Assets, Container, Graphics, Sprite, Texture } from "pixi.js";
+import { Application, Assets, Container } from "pixi.js";
 import { Manifest } from "./Manifest";
+import { GameFactory, GameObjects } from "./GameFactory";
+import { GamePhase } from "@crash/shared";
+import { CanvasState, CanvasStateContext } from "./states/CanvasState";
+import { WaitingState } from "./states/WaitingState";
+import { CountdownState } from "./states/CountdownState";
+import { FlyingState } from "./states/FlyingState";
+import { CrashedState } from "./states/CrashedState";
+import { GameState } from "../store/game-store";
 
 export class Game {
   private readonly baseWidth = 1024;
@@ -9,6 +17,12 @@ export class Game {
   private readonly world = new Container();
 
   private resizeObserver?: ResizeObserver;
+
+  protected gameFactory = new GameFactory();
+  protected gameObjects?: GameObjects;
+  protected states!: Record<GamePhase, CanvasState>;
+
+  protected currentState?: GamePhase;
 
   public async init(parent: HTMLElement): Promise<void> {
     await this.app.init({
@@ -23,9 +37,20 @@ export class Game {
     this.app.stage.addChild(this.world);
 
     await this.loadAssets();
-    this.createScene();
 
+    this.gameObjects = this.gameFactory.buildGame(this.world);
     this.resize(parent);
+
+    const gameStateContext: CanvasStateContext = {
+      gameObjects: this.gameObjects,
+      ticker: this.app.ticker
+    };
+    this.states = {
+      [GamePhase.WAITING]: new WaitingState(gameStateContext),
+      [GamePhase.COUNTDOWN]: new CountdownState(gameStateContext),
+      [GamePhase.FLYING]: new FlyingState(gameStateContext),
+      [GamePhase.CRASHED]: new CrashedState(gameStateContext)
+    };
 
     this.resizeObserver = new ResizeObserver(() => this.resize(parent));
     this.resizeObserver.observe(parent);
@@ -36,56 +61,24 @@ export class Game {
     (globalThis as any).__PIXI_APP__ = this.app;
   }
 
+  public onPhaseChanged(state: GameState): void {
+    if (state.phase === this.currentState) {
+      return;
+    }
+
+    console.log(`[Game] Entered state: ${state.phase}`);
+
+    if (this.currentState) {
+      this.states?.[this.currentState].exit();
+    }
+    this.states?.[state.phase].enter();
+
+    this.currentState = state.phase;
+  }
+
   private async loadAssets(): Promise<void> {
     await Assets.init({ manifest: Manifest });
     await Assets.loadBundle("game");
-  }
-
-  private createScene(): void {
-    this.world.addChild(
-      new Graphics({ zIndex: -1 })
-        .rect(0, 0, this.baseWidth, this.baseHeight)
-        .fill(0x3298cb)
-    );
-
-    this.world.addChild(this.createStadium());
-
-    this.world.addChild(this.createBall());
-
-    this.world.addChild(this.createBatter());
-  }
-
-  public createStadium(): Sprite {
-    const ball = new Sprite({
-      texture: Assets.get("stadium"),
-      anchor: 0.5,
-      x: 512,
-      y: 728,
-      scale: 0.67
-    });
-    return ball;
-  }
-
-  public createBall(): Sprite {
-    const ball = new Sprite({
-      texture: Assets.get("ball"),
-      anchor: 0.5,
-      x: 512,
-      y: 512
-    });
-    return ball;
-  }
-
-  public createBatter(): AnimatedSprite {
-    return new AnimatedSprite({
-      textures: Array.from({ length: 8 }, (_, i) => Assets.get(`swing_${i + 1}`)),
-      animationSpeed: 0.1,
-      loop: true,
-      autoPlay: true,
-      x: 67,
-      y: 669,
-      scale: 0.67
-    });
   }
 
   private resize(parent: HTMLElement): void {

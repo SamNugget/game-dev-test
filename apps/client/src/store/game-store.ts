@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { GamePhase, type BotPlayer, type RoundResult } from '@crash/shared';
 
-interface GameState {
+export interface GameState {
   phase: GamePhase;
   roundId: string | null;
   multiplier: number;

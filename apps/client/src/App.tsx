@@ -18,22 +18,30 @@ export function App() {
   useGameLoop();
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const gameRef = useRef<Game>(null);
   const [verifyOpen, setVerifyOpen] = useState(false);
 
   const connected = useGameStore((s) => s.connected);
   const phase = useGameStore((s) => s.phase);
   const crashPoint = useGameStore((s) => s.crashPoint);
 
-  // ResizeObserver for canvas container
   useEffect(() => {
     const container = canvasContainerRef.current;
-    if (!container) return;
+    if (!container || gameRef.current) return;
 
     const game = new Game();
     game.init(container);
+    game.onPhaseChanged(useGameStore.getState());
+
+    gameRef.current = game;
 
     // return () => game.destroy();
   }, []);
+
+  useEffect(() => {
+    // when phase changes update, tell pixi game
+    gameRef.current?.onPhaseChanged(useGameStore.getState());
+  }, [phase]);
 
   const handlePlaceBet = useCallback(
     (amount: number, autoCashout: number | undefined) => {
@@ -67,7 +75,7 @@ export function App() {
           className="flex-1 relative bg-gray-900/50 rounded-lg overflow-hidden"
         >
           {/* <GameCanvas width={canvasSize.width} height={canvasSize.height} /> */}
-          <RocketRive />
+          {/* <RocketRive /> */}
           <MultiplierDisplay />
           <RoundCountdown />
         </div>
@@ -83,9 +91,8 @@ export function App() {
       <footer className="flex items-center justify-between px-4 py-2 bg-gray-900/50 border-t border-gray-800 text-xs text-gray-500">
         <div className="flex items-center gap-3">
           <span
-            className={`inline-block w-2 h-2 rounded-full ${
-              connected ? 'bg-emerald-500' : 'bg-red-500'
-            }`}
+            className={`inline-block w-2 h-2 rounded-full ${connected ? 'bg-emerald-500' : 'bg-red-500'
+              }`}
           />
           <span>
             {phase === GamePhase.CRASHED && crashPoint != null
