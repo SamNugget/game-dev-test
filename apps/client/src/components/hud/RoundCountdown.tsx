@@ -39,7 +39,7 @@ export function RoundCountdown() {
   if (phase === GamePhase.COUNTDOWN) {
     return (
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-        <span className="text-cyan-400 text-8xl font-black animate-ping-once">
+        <span className="text-white text-8xl font-black animate-ping-once drop-shadow-[0_0_10px_rgba(0,0,0,0.9)]">
           {count > 0 ? count : 'GO!'}
         </span>
       </div>

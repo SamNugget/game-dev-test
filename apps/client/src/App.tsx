@@ -11,13 +11,13 @@ import { BetPanel } from './components/hud/BetPanel.js';
 import { PlayerList } from './components/social/PlayerList.js';
 import { RoundHistory } from './components/history/RoundHistory.js';
 import { VerifyModal } from './components/fairness/VerifyModal.js';
+import { Game } from './canvas/Game.js';
 
 export function App() {
   const { send } = useGameSocket();
   useGameLoop();
 
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [verifyOpen, setVerifyOpen] = useState(false);
 
   const connected = useGameStore((s) => s.connected);
@@ -29,23 +29,10 @@ export function App() {
     const container = canvasContainerRef.current;
     if (!container) return;
 
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      const { width, height } = entry.contentRect;
-      if (width > 0 && height > 0) {
-        setCanvasSize({ width: Math.floor(width), height: Math.floor(height) });
-      }
-    });
+    const game = new Game();
+    game.init(container);
 
-    observer.observe(container);
-    // Set initial size
-    const rect = container.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) {
-      setCanvasSize({ width: Math.floor(rect.width), height: Math.floor(rect.height) });
-    }
-
-    return () => observer.disconnect();
+    // return () => game.destroy();
   }, []);
 
   const handlePlaceBet = useCallback(
@@ -76,6 +63,7 @@ export function App() {
         {/* Canvas area */}
         <div
           ref={canvasContainerRef}
+          id="game"
           className="flex-1 relative bg-gray-900/50 rounded-lg overflow-hidden"
         >
           {/* <GameCanvas width={canvasSize.width} height={canvasSize.height} /> */}

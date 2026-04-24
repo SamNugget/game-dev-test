@@ -25,7 +25,7 @@ export function MultiplierDisplay() {
         className={`font-black tabular-nums transition-colors ${
           isCrashed
             ? 'text-red-400 text-6xl'
-            : 'text-cyan-400 text-7xl drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]'
+            : 'text-white text-7xl drop-shadow-[0_0_10px_rgba(0,0,0,0.9)]'
         }`}
       >
         {formatMultiplier(displayValue)}
