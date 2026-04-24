@@ -2,6 +2,8 @@ import { Ticker } from "pixi.js";
 import { CanvasState } from "./CanvasState";
 import { useGameStore } from "../../store/game-store";
 import gsap from "gsap";
+import { CloudData } from "../GameFactory";
+import { updateClouds } from "./CountdownState";
 
 export class FlyingState extends CanvasState {
   protected xPositionEase = gsap.parseEase("power1.out");
@@ -30,16 +32,20 @@ export class FlyingState extends CanvasState {
   }
 
   protected updateStage(): void {
-    const { skyGradient, scene, ballContainer } = this.gameObjects;
+    const { skyGradient, scene, moon, clouds, ballContainer } = this.gameObjects;
 
     const { multiplier } = useGameStore.getState();
 
     const upSpeed = 10000;
     const position = (multiplier - 1) * upSpeed;
-
     skyGradient.setAltitude(position);
-
     scene.y = position;
+
+    const moonSpeed = 1000;
+    const moonPosition = -5000 + (multiplier - 1) * moonSpeed;
+    moon.y = moonPosition;
+
+    updateClouds(clouds, this.ticker);
 
     const yRange = -500;
     const xRange = 300;
